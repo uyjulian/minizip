@@ -1,12 +1,8 @@
-[submodule "minizip"]
-	path = minizip
-	url = https://github.com/nmoinvaz/minizip.git
-	ignore=dirty
 [submodule "external/zlib"]
 	path = external/zlib
 	url = https://github.com/krkrz/zlib.git
-	ignore=dirty
+	ignore = dirty
 [submodule "external/minizip"]
 	path = external/minizip
 	url = https://github.com/nmoinvaz/minizip.git
-	ignore=dirty
+	ignore = dirty
