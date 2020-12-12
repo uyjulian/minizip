@@ -232,7 +232,7 @@ public:
 
 		if (numparams < 2) return TJS_E_BADPARAMCOUNT;
 		if (!self->zf) {
-			TVPThrowExceptionMessage(L"don't open zipfile");
+			TVPThrowExceptionMessage(TJS_W("don't open zipfile"));
 		}			
 		
 		ttstr srcname  = *param[0];
@@ -388,7 +388,7 @@ public:
       ttstr filename = *param[0];
       if ((self->uf = unzOpen2_64((const void*)filename.c_str(), &KrkrFileFuncDef)) == NULL) {
         ttstr msg = filename;
-        msg += L" can't open.";
+        msg += TJS_W(" can't open.");
         TVPThrowExceptionMessage(msg.c_str());
       }
       
@@ -429,7 +429,7 @@ public:
 										  Unzip *self) {
 
 		if (!self->uf) {
-			TVPThrowExceptionMessage(L"don't open zipfile");
+			TVPThrowExceptionMessage(TJS_W("don't open zipfile"));
 		}
 
 		iTJSDispatch2 *array = TJSCreateArrayObject();
@@ -447,13 +447,13 @@ public:
 					ttstr filename;
 					storeFilename(filename, filename_inzip, self->utf8);
 					
-					setStrProp(obj, L"filename", filename);
-					setIntProp(obj, L"uncompressed_size", file_info.uncompressed_size);
-					setIntProp(obj, L"compressed_size", file_info.compressed_size);
-					setIntProp(obj, L"crypted", (file_info.flag & 1) ? 1 : 0);
-					setIntProp(obj, L"deflated", (file_info.compression_method==Z_DEFLATED) ? 1 : 0);
-					setIntProp(obj, L"deflateLevel", (file_info.flag & 0x6)/2);
-					setIntProp(obj, L"crc", file_info.crc);
+					setStrProp(obj, TJS_W("filename"), filename);
+					setIntProp(obj, TJS_W("uncompressed_size"), file_info.uncompressed_size);
+					setIntProp(obj, TJS_W("compressed_size"), file_info.compressed_size);
+					setIntProp(obj, TJS_W("crypted"), (file_info.flag & 1) ? 1 : 0);
+					setIntProp(obj, TJS_W("deflated"), (file_info.compression_method==Z_DEFLATED) ? 1 : 0);
+					setIntProp(obj, TJS_W("deflateLevel"), (file_info.flag & 0x6)/2);
+					setIntProp(obj, TJS_W("crc"), file_info.crc);
 
 					// 日付情報
 					FILETIME date;
@@ -470,7 +470,7 @@ public:
 						SystemTimeToFileTime(&time, &filetime);
 						LocalFileTimeToFileTime(&filetime, &date);
 					}
-					setDateProp(obj, L"date", date);
+					setDateProp(obj, TJS_W("date"), date);
 
 					tTJSVariant var(obj), *param = &var;
 					array->FuncCall(0, TJS_W("add"), NULL, 0, 1, &param, array);
@@ -500,7 +500,7 @@ public:
 											 Unzip *self) {
 		if (numparams < 2) return TJS_E_BADPARAMCOUNT;
 		if (!self->uf) {
-			TVPThrowExceptionMessage(L"don't open zipfile");
+			TVPThrowExceptionMessage(TJS_W("don't open zipfile"));
 		}			
 		ttstr srcname  = *param[0];
 		ttstr destname = *param[1];
