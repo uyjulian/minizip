@@ -6,3 +6,6 @@
 	path = external/minizip
 	url = https://github.com/nmoinvaz/minizip.git
 	ignore = dirty
+[submodule "external/ncbind"]
+	path = external/ncbind
+	url = ../ncbind
