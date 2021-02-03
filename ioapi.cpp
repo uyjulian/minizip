@@ -1,6 +1,6 @@
-#include <windows.h>
 #include <stdio.h>
 #include "tp_stub.h"
+#include "istream_compat.h"
 #include "mz.h"
 #include "mz_strm.h"
 #include "mz_compat.h"

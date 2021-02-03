@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
 #include "ncbind/ncbind.hpp"
+#include "istream_compat.h"
 #include <map>
 #include <vector>
 
@@ -15,7 +15,7 @@
 
 #define CASESENSITIVITY (0)
 
-#define BASENAME L"zip"
+#define BASENAME TJS_W("zip")
 
 // UTF8なファイル名かどうかのフラグ
 #define FLAG_UTF8 (1<<11)
@@ -31,7 +31,9 @@ class UnzipBase {
 
 public:
 	UnzipBase() : refCount(1), uf(NULL), utf8(false) {
+#if 0
 		::InitializeCriticalSection(&cs);
+#endif
 	}
 
 	void AddRef() {
@@ -175,7 +177,9 @@ protected:
 	 */
 	virtual ~UnzipBase() {
 		done();
+#if 0
 		::DeleteCriticalSection(&cs);
+#endif
 	}
 
 	void done() {
@@ -187,23 +191,32 @@ protected:
 
 	// ロック
 	void lock() {
+#if 0
 		::EnterCriticalSection(&cs);
+#endif
+		CS.Enter();
 	}
 
 	// ロック解除
 	void unlock() {
+#if 0
 		::LeaveCriticalSection(&cs);
+#endif
+		CS.Leave();
 	}
 
 	void entryName(const ttstr &name) {
 		ttstr dname = TJS_W("/");
 		ttstr fname;
-		const tjs_char *p = name.c_str();
-		const tjs_char *q;
-		if ((q = wcsrchr(p, '/'))) {
-			dname += ttstr(p, q-p+1);
-			fname = ttstr(q+1);
-		} else {
+		tjs_string path = name.AsStdString();
+		size_t last_dir_pos = path.find_last_of(TJS_W("/"));
+		if (last_dir_pos != tjs_string::npos)
+		{
+			dname += ttstr(path.substr(0, last_dir_pos));
+			fname = ttstr(path.substr(last_dir_pos, path.length()));
+		}
+		else
+		{
 			fname = name;
 		}
 		dirEntryTable[dname].push_back(fname);
@@ -214,7 +227,10 @@ private:
 	// zipファイル情報
 	unzFile uf;
 	bool utf8;
+#if 0
 	CRITICAL_SECTION cs;
+#endif
+	tTJSCriticalSection CS;
 
 	// ディレクトリ別ファイル名エントリ情報
 	typedef std::vector<ttstr> FileNameList;
@@ -235,6 +251,7 @@ public:
 	};
 
 	// IUnknown
+#if 0
 	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject) {
 		if (riid == IID_IUnknown || riid == IID_ISequentialStream || riid == IID_IStream) {
 			if (ppvObject == NULL)
@@ -247,6 +264,7 @@ public:
 			return E_NOINTERFACE;
 		}
 	}
+#endif
 
 	ULONG STDMETHODCALLTYPE AddRef(void) {
 		refCount++;
@@ -321,8 +339,9 @@ public:
 	
 	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag) {
 		if(pstatstg) {
-			ZeroMemory(pstatstg, sizeof(*pstatstg));
+			memset(pstatstg, 0, sizeof(*pstatstg));
 
+#if 0
 			// pwcsName
 			// this object's storage pointer does not have a name ...
 			if(!(grfStatFlag &  STATFLAG_NONAME)) {
@@ -332,20 +351,25 @@ public:
 				*str = L'\0';
 				pstatstg->pwcsName = str;
 			}
+#endif
 
+#if 0
 			// type
 			pstatstg->type = STGTY_STREAM;
+#endif
 			
 			// cbSize
 			pstatstg->cbSize.QuadPart = size;
 			
 			// mtime, ctime, atime unknown
 
+#if 0
 			// grfMode unknown
 			pstatstg->grfMode = STGM_DIRECT | STGM_READ | STGM_SHARE_DENY_WRITE ;
 			
 			// grfLockSuppoted
 			pstatstg->grfLocksSupported = 0;
+#endif
 			
 			// grfStatBits unknown
 		} else {
@@ -543,7 +567,7 @@ protected:
 		ttstr dname;
 		const tjs_char *p = name.c_str();
 		const tjs_char *q;
-		if ((q = wcschr(p, '/'))) {
+		if ((q = TJS_strchr(p, '/'))) {
 			dname = ttstr(p, q-p);
 			fname = ttstr(q+1);
 		} else {

@@ -20,10 +20,9 @@ static const char *copyright =
 #include <time.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <direct.h>
-#include <io.h>
 
 #include "ncbind/ncbind.hpp"
+#include "istream_compat.h"
 #include "mz_compat.h"
 #include "mz_strm.h"
 #include "zlib.h"
@@ -123,6 +122,7 @@ static void setStrProp(iTJSDispatch2 *obj, const tjs_char *name, ttstr &value)
 }
 
 // オブジェクトに日時を格納
+#if 0
 static void setDateProp(iTJSDispatch2 *obj, const tjs_char *name, FILETIME &filetime)
 {
 	// ファイル生成時
@@ -142,6 +142,7 @@ static void setDateProp(iTJSDispatch2 *obj, const tjs_char *name, FILETIME &file
 		}
 	}
 }
+#endif
 
 /**
  * ZIP圧縮処理クラス
@@ -262,6 +263,7 @@ public:
 		// ファイル時刻情報取得
 		zip_fileinfo zi;
 		memset(&zi, 0, sizeof zi);
+#if 0
 		{
 			SYSTEMTIME time;
 			GetLocalTime(&time); // 現在時刻
@@ -287,6 +289,7 @@ public:
 			zi.tmz_date.tm_min  = time.wMinute;
 			zi.tmz_date.tm_sec  = time.wSecond;
 		}
+#endif
 
 		bool ret;
 		
@@ -342,6 +345,10 @@ public:
 void
 storeFilename(ttstr &name, const char *narrowName, bool utf8)
 {
+	tjs_string utf16line;
+	TVPUtf8ToUtf16( utf16line, narrowName );
+	name = utf16line;
+#if 0
 	if (utf8) {
 		int	len = ::MultiByteToWideChar(CP_UTF8, 0, narrowName, -1, NULL, 0);
 		if (len > 0) {
@@ -355,6 +362,7 @@ storeFilename(ttstr &name, const char *narrowName, bool utf8)
 	} else {
 		name = narrowName;
 	}
+#endif
 }
 
 /**
@@ -456,6 +464,7 @@ public:
 					setIntProp(obj, TJS_W("crc"), file_info.crc);
 
 					// 日付情報
+#if 0
 					FILETIME date;
 					{
 						SYSTEMTIME time;
@@ -471,6 +480,7 @@ public:
 						LocalFileTimeToFileTime(&filetime, &date);
 					}
 					setDateProp(obj, TJS_W("date"), date);
+#endif
 
 					tTJSVariant var(obj), *param = &var;
 					array->FuncCall(0, TJS_W("add"), NULL, 0, 1, &param, array);
