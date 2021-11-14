@@ -8,4 +8,4 @@
 	ignore = dirty
 [submodule "external/ncbind"]
 	path = external/ncbind
-	url = ../ncbind
+	url = https://github.com/uyjulian/ncbind.git
