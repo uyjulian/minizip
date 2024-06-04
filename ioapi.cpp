@@ -147,11 +147,9 @@ krkr_mz_stream_error(void *stream)
 }
 
 void*
-krkr_mz_stream_create(void **stream)
+krkr_mz_stream_create()
 {
   KrkrMzStream *kstream = new KrkrMzStream();
-  if (stream != NULL)
-    *stream = kstream;
   return kstream;
 }
 
