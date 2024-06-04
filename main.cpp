@@ -26,7 +26,7 @@ static const char *copyright =
 #include "ncbind/ncbind.hpp"
 #include "mz_compat.h"
 #include "mz_strm.h"
-#include "zlib.h"
+#include "zlib-ng.h"
   
 #include "narrow.h"
 
@@ -38,7 +38,7 @@ static const char *copyright =
 #define FLAG_UTF8 (1<<11)
 
 // ファイルアクセス用
-extern  zlib_filefunc_def KrkrFileFuncDef;
+extern  zlib_filefunc64_def KrkrFileFuncDef;
 
 // Date クラスメンバ
 static iTJSDispatch2 *dateClass = NULL;    // Date のクラスオブジェクト
@@ -299,7 +299,7 @@ public:
 				char buf[BUFFERSIZE];
 				DWORD size;
 				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
-					crcFile = crc32(crcFile, (const Bytef *)buf, size);
+					crcFile = zng_crc32(crcFile, (const Bytef *)buf, size);
 				}
 				// 位置をもどす
 				LARGE_INTEGER move = {0};

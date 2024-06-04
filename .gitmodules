@@ -1,7 +1,3 @@
-[submodule "external/zlib"]
-	path = external/zlib
-	url = https://github.com/krkrz/zlib.git
-	ignore = dirty
 [submodule "external/minizip"]
 	path = external/minizip
 	url = https://github.com/nmoinvaz/minizip.git
@@ -9,3 +5,11 @@
 [submodule "external/ncbind"]
 	path = external/ncbind
 	url = https://github.com/uyjulian/ncbind.git
+[submodule "external/zlib-ng"]
+	path = external/zlib-ng
+	url = https://github.com/zlib-ng/zlib-ng.git
+	ignore = dirty
+[submodule "external/minizip_lib"]
+	path = external/minizip_lib
+	url = https://github.com/uyjulian/minizip_lib.git
+	ignore = dirty

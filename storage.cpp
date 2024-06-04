@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include "mz_compat.h"
 #include "mz_strm.h"
-#include "zlib.h"
 
 #include "narrow.h"
 
@@ -22,7 +21,7 @@
 extern void storeFilename(ttstr &name, const char *narrowName, bool utf8);
 
 // ファイルアクセス用
-extern  zlib_filefunc_def KrkrFileFuncDef;
+extern  zlib_filefunc64_def KrkrFileFuncDef;
 
 /**
  * Zip 展開処理クラス

@@ -182,4 +182,14 @@ KrkrMzStreamVtbl =
    NULL,
   };
 
-zlib_filefunc_def KrkrFileFuncDef = &KrkrMzStreamVtbl;
+zlib_filefunc64_def KrkrFileFuncDef =
+  {
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    (void *)&KrkrMzStreamVtbl,
+  };
