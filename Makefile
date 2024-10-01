@@ -13,6 +13,6 @@ CFLAGS += -DHAVE_ATTRIBUTE_ALIGNED -DHAVE_PKCRYPT -DMZ_ZIP_NO_CRYPTO -DMZ_ZIP_NO
 
 PROJECT_BASENAME = minizip
 
-RC_LEGALCOPYRIGHT ?= Copyright (C) 2007-2016 Go Watanabe; Copyright (C) 2009-2014 miahmie; Copyright (C) 2019-2020 Julian Uy; See details of license at license.txt, or the source code location.
+RC_LEGALCOPYRIGHT ?= Copyright (C) 2007-2016 Go Watanabe; Copyright (C) 2009-2014 miahmie; Copyright (C) 2019-2024 Julian Uy; See details of license at license.txt, or the source code location.
 
 include external/ncbind/Rules.lib.make
