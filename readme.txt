@@ -1,10 +1,10 @@
 Title: minizip plugin
-Author: ã‚ãŸãªã¹ã”ã†
+Author: ‚í‚½‚È‚×‚²‚¤
 
-â—ã“ã‚Œã¯ãªã«ï¼Ÿ
+œ‚±‚ê‚Í‚È‚ÉH
 
-å‰é‡Œå‰é‡Œã§ zip ã‚¢ãƒ¼ã‚«ã‚¤ãƒ–ã‚’æ‰±ã†ãƒ—ãƒ©ã‚°ã‚¤ãƒ³ã§ã™ã€‚
-å„ç¨®ãƒ‡ãƒ¼ã‚¿ã®å‡ºåŠ›ã‚„ç®¡ç†ãªã©ã«åˆ©ç”¨ã§ãã¾ã™
+‹g—¢‹g—¢‚Å zip ƒA[ƒJƒCƒu‚ğˆµ‚¤ƒvƒ‰ƒOƒCƒ“‚Å‚·B
+Šeíƒf[ƒ^‚Ìo—Í‚âŠÇ—‚È‚Ç‚É—˜—p‚Å‚«‚Ü‚·
 
 This unzip package allow creates .ZIP file, compatible with PKZip 2.04g
 WinZip, InfoZip tools and compatible.
@@ -12,19 +12,30 @@ Multi volume ZipFile (span) are not supported.
 Encryption compatible with pkzip 2.04g only supported
 Old compressions used by old PKZip 1.x are not supported
 
-â—ä½¿ã„æ–¹
+œƒ‰ƒCƒZƒ“ƒX
 
-manual.tjs å‚ç…§
+zlib •t‘®‚Ì contrib/minizip ‚©‚çfork ‚µ‚½ nmoinvaz/minizip
+(https://github.com/nmoinvaz/minizip) ‚ğƒvƒ‰ƒOƒCƒ“‰»‚µ‚½‚à‚Ì‚Å‚·
+zlib ƒ‰ƒCƒZƒ“ƒX‚É‚È‚è‚Ü‚·B
 
-â—æ³¨æ„ç‚¹
+œƒrƒ‹ƒh
 
-ãƒ“ãƒ«ãƒ‰ã«ã¯Windowsç”¨ã®cmakeãŒå¿…è¦ã§ã™ã€‚
-https://cmake.org/ ã‹ã‚‰æœ€æ–°ã®å®‰å®šç‰ˆã‚’ãƒ€ã‚¦ãƒ³ãƒ­ãƒ¼ãƒ‰ã—ã€
-ãƒ‘ã‚¹ãŒé€šã£ã¦ã„ã‚‹ç®‡æ‰€ã«ã‚¤ãƒ³ã‚¹ãƒˆãƒ¼ãƒ«ã—ã¦ãŠã„ã¦ä¸‹ã•ã„ã€‚
+ƒrƒ‹ƒh‚É‚ÍWindows—p‚Ìcmake‚ª•K—v‚Å‚·B
 
-â—ãƒ©ã‚¤ã‚»ãƒ³ã‚¹
+VisualStudio ‚ÌƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚©‚çˆÈ‰º‚Å‘Î‰
 
-zlib ä»˜å±ã® contrib/minizip ã‹ã‚‰fork ã—ãŸ nmoinvaz/minizip
-(https://github.com/nmoinvaz/minizip) ã‚’ãƒ—ãƒ©ã‚°ã‚¤ãƒ³åŒ–ã—ãŸã‚‚ã®ã§ã™
-zlib ãƒ©ã‚¤ã‚»ãƒ³ã‚¹ã«ãªã‚Šã¾ã™ã€‚
+```
+# win32w’è‚µ‚È‚¢‚Æx64‚É‚È‚éê‡‚ ‚è
+cmake -A win32 -B build
+cmake --build build --config Release
+
+build/Release/minizip.dll
+
+```
+
+œg‚¢•û
+
+manual.tjs QÆ
+
+
 

@@ -28,17 +28,21 @@ class Zip {
 	function open(filename, overwrite=0);
 
 	/**
+
+
+	
 	 * アーカイブにファイルを追加します
 	 * @param srcfile 追加するファイル（吉里吉里ストレージ名）
 	 * @param destfile アーカイブ中での名前(アーカイブ内パス名）
-	 * @param deflateLevel 圧縮レベル 0(無圧縮) 〜 9(最大圧縮) 省略時は 6になる
+	 * @param deflateLevel 圧縮レベル 0(無圧縮) ～ 9(最大圧縮) 省略時は 6になる
 	 * @param password 暗号化パスワード指定
          * @param compressionMethod 圧縮メソッド
+	 * @param clearDate 日付指定を空にする指定。デフォルトはファイルの日付を格納
 	 * @return 追加に成功したら true
 	 * @throw Exception ZIPファイルが開かれてない場合
 	 * @throw Exception 追加するファイルが存在しない場合
 	 */
-        function add(srcfile, destfile, commpressLevel=void, password=void, compressionMethod = Zip.CompressionMethodDeflate);
+        function add(srcfile, destfile, commpressLevel=void, password=void, compressionMethod = Zip.CompressionMethodDeflate, clearDate=false);
 
 	/**
 	 * ZIPアーカイブをクローズします

@@ -23,10 +23,14 @@ static const char *copyright =
 #include <direct.h>
 #include <io.h>
 
-#include "ncbind/ncbind.hpp"
+#include <ncbind.hpp>
 #include "mz_compat.h"
 #include "mz_strm.h"
+#if 1
 #include "zlib-ng.h"
+#else
+#include "zlib.h"
+#endif
   
 #include "narrow.h"
 
@@ -38,7 +42,11 @@ static const char *copyright =
 #define FLAG_UTF8 (1<<11)
 
 // ファイルアクセス用
+#if 1
 extern  zlib_filefunc64_def KrkrFileFuncDef;
+#else
+extern  zlib_filefunc_def KrkrFileFuncDef;
+#endif
 
 // Date クラスメンバ
 static iTJSDispatch2 *dateClass = NULL;    // Date のクラスオブジェクト
@@ -247,10 +255,14 @@ public:
 			usePassword = true;
 			password = *param[3];
 		}
-                int compressionMethod = MZ_COMPRESS_METHOD_DEFLATE;
-                if (numparams > 4 && param[4]->Type() == tvtInteger) {
-                  compressionMethod = (int)*param[4];
-                }
+		int compressionMethod = MZ_COMPRESS_METHOD_DEFLATE;
+		if (numparams > 4 && param[4]->Type() == tvtInteger) {
+			compressionMethod = (int)*param[4];
+		}
+		bool ignoreDate = false;
+		if (numparams > 5 && param[5]->Type() == tvtInteger) {
+			ignoreDate = (int)*param[5] != 0;
+		}
 
 		// ファイル名
 		ttstr filename = TVPGetPlacedPath(srcname);
@@ -262,10 +274,15 @@ public:
 		// ファイル時刻情報取得
 		zip_fileinfo zi;
 		memset(&zi, 0, sizeof zi);
-		{
+		if (!ignoreDate) {
 			SYSTEMTIME time;
 			GetLocalTime(&time); // 現在時刻
+#if 1
 			ttstr name(TVPGetLocallyAccessibleName(filename));
+#else
+			ttstr name = filename;
+			TVPGetLocalName(name);
+#endif
 			if (name.length() > 0) {
 				// 実ファイルが存在する場合は時刻を抜いてくる
 				HANDLE hFile;
@@ -299,7 +316,11 @@ public:
 				char buf[BUFFERSIZE];
 				DWORD size;
 				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
+#if 1
 					crcFile = zng_crc32(crcFile, (const Bytef *)buf, size);
+#else
+					crcFile = crc32(crcFile, (const Bytef *)buf, size);
+#endif
 				}
 				// 位置をもどす
 				LARGE_INTEGER move = {0};

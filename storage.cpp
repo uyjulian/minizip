@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-#include "ncbind/ncbind.hpp"
+#include <ncbind.hpp>
 #include <map>
 #include <vector>
 
@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include "mz_compat.h"
 #include "mz_strm.h"
+#if 0
+#include "zlib.h"
+#endif
 
 #include "narrow.h"
 
@@ -21,7 +24,11 @@
 extern void storeFilename(ttstr &name, const char *narrowName, bool utf8);
 
 // ファイルアクセス用
+#if 1
 extern  zlib_filefunc64_def KrkrFileFuncDef;
+#else
+extern  zlib_filefunc_def KrkrFileFuncDef;
+#endif
 
 /**
  * Zip 展開処理クラス
