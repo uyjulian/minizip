@@ -309,11 +309,7 @@ public:
 
 		bool ret;
 		
-#if 1
 		IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
-#else
-		iTJSBinaryStream *in = TVPCreateStream(filename, TJS_BS_READ);
-#endif
 		if (in) {
 			
 			// CRC計算
@@ -321,23 +317,13 @@ public:
 			if (usePassword) {
 				char buf[BUFFERSIZE];
 				DWORD size;
-#if 1
 				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
 					crcFile = zng_crc32(crcFile, (const Bytef *)buf, size);
 				}
-#else
-				while ((size = in->Read(buf, sizeof buf)) > 0) {
-					crcFile = crc32(crcFile, (const unsigned char *)buf, size);
-				}
-#endif
 				// 位置をもどす
-#if 1
 				LARGE_INTEGER move = {0};
 				ULARGE_INTEGER newposition;
 				in->Seek(move, STREAM_SEEK_CUR, &newposition);
-#else
-				in->Seek(0, TJS_BS_SEEK_CUR);
-#endif
 			}
 			// ファイルの追加
 			// UTF8で格納する
@@ -350,12 +336,7 @@ public:
 									 crcFile, 0, FLAG_UTF8) == ZIP_OK) {
 				char buf[BUFFERSIZE];
 				DWORD size;
-#if 1
-				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0)
-#else
-				while ((size = in->Read(buf, sizeof buf)) > 0) 
-#endif
-				{
+				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
 					zipWriteInFileInZip (self->zf, buf, size);
 				}
 				zipCloseFileInZip(self->zf);
@@ -363,11 +344,7 @@ public:
 			} else {
 				ret = false;
 			}
-#if 1
 			in->Release();
-#else
-			in->Destruct();
-#endif
 			in = 0;
 		}
 
@@ -560,26 +537,14 @@ public:
 			int result = usePassword ? unzOpenCurrentFilePassword(self->uf,NarrowString(password))
 				: unzOpenCurrentFile(self->uf);
 			if (result == UNZ_OK) {
-#if 1
 				IStream *out = TVPCreateIStream(destname, TJS_BS_WRITE);
-#else
-				iTJSBinaryStream *out = TVPCreateStream(destname, TJS_BS_WRITE);
-#endif
 				if (out) {
 					char buf[BUFFERSIZE];
 					DWORD size;
 					while ((size = unzReadCurrentFile(self->uf,buf,sizeof buf)) > 0) {
-#if 1
 						out->Write(buf, size, &size);
-#else
-						out->Write(buf, size);
-#endif
 					}
-#if 1
 					out->Release();
-#else
-					out->Destruct();
-#endif
 					out = 0;
 				} else {
 					unzCloseCurrentFile(self->uf);

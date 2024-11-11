@@ -5,11 +5,7 @@
 
 static void* ZCALLBACK fopen64_file_func (void* opaque, const void* filename, int mode)
 {
-#if 0
-	iTJSBinaryStream* file = NULL;
-#else
-	IStream* file = NULL;
-#endif
+	IStream *file = NULL;
 	int tjsmode = 0;
 	if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER)==ZLIB_FILEFUNC_MODE_READ)
 		tjsmode = TJS_BS_READ;
@@ -21,11 +17,7 @@ static void* ZCALLBACK fopen64_file_func (void* opaque, const void* filename, in
 		tjsmode = TJS_BS_WRITE;
 	
 	if ((filename!=NULL)) {
-#if 0
-		file = TVPCreateStream(ttstr((const tjs_char*)filename), tjsmode);
-#else
 		file = TVPCreateIStream(ttstr((const tjs_char*)filename), tjsmode);
-#endif
 	}
   return file;
 }
@@ -33,61 +25,37 @@ static void* ZCALLBACK fopen64_file_func (void* opaque, const void* filename, in
 
 static unsigned long ZCALLBACK fread_file_func (void* opaque, void* stream, void* buf, unsigned long size)
 {
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
 	IStream *is = (IStream*)stream;
-#endif
 	if (is) {
-#if 0
-		return is->Read(buf,size);
-#else
-    ULONG len;
-    if (is->Read(buf,size,&len) == S_OK) {
-      return len;
-    }
-#endif
+		DWORD s;
+		if (is->Read(buf,size,&s) == S_OK) {
+			return s;
+		}
 	}
 	return 0;
 }
 
 static unsigned long ZCALLBACK fwrite_file_func (void* opaque, void* stream, const void* buf, unsigned long size)
 {
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
 	IStream *is = (IStream*)stream;
-#endif
 	if (is) {
-#if 0
-		return is->Write(buf,size);
-#else
-    DWORD len;
-    if (is->Write(buf,size,&len) == S_OK) {
-      return len;
-    }
-#endif
+		DWORD s;
+		if (is->Write(buf,size,&s) == S_OK) {
+			return s;
+		}
 	}
 	return 0;
 }
 
 static ZPOS64_T ZCALLBACK ftell64_file_func (void* opaque, void* stream)
 {
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
-	IStream *is = (IStream*)stream;
-#endif
+	IStream *is = (IStream *)stream;
 	if (is) {
-#if 0
-    return is->Seek(0, TJS_BS_SEEK_CUR);
-#else
-    LARGE_INTEGER move = {0};
-    ULARGE_INTEGER newposition;
-    if (is->Seek(move, STREAM_SEEK_CUR, &newposition) == S_OK) {
-      return newposition.QuadPart;
-    }
-#endif
+		LARGE_INTEGER move = {0};
+		ULARGE_INTEGER newposition;
+		if (is->Seek(move, STREAM_SEEK_CUR, &newposition) == S_OK) {
+			return newposition.QuadPart;
+		}
 	}
 	return -1;
 }
@@ -111,22 +79,14 @@ static long ZCALLBACK fseek64_file_func (void*  opaque, void* stream, ZPOS64_T o
 #endif
 	default: return -1; //failed
 	}
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
-	IStream *is = (IStream*)stream;
-#endif
+	IStream *is = (IStream *)stream;
 	if (is) {
-#if 0
-    return is->Seek(offset, dwOrigin);
-#else
-    LARGE_INTEGER move;
-    move.QuadPart = offset;
-    ULARGE_INTEGER newposition;
-    if (is->Seek(move, dwOrigin, &newposition) == S_OK) {
-      return newposition.QuadPart;
-    }
-#endif
+		LARGE_INTEGER move;
+		move.QuadPart = offset;
+		ULARGE_INTEGER newposition;
+		if (is->Seek(move, dwOrigin, &newposition) == S_OK) {
+			return 0;
+		}
 	}
 	return -1;
 }
@@ -134,17 +94,9 @@ static long ZCALLBACK fseek64_file_func (void*  opaque, void* stream, ZPOS64_T o
 
 static int ZCALLBACK fclose_file_func (void* opaque, void* stream)
 {
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
-	IStream *is = (IStream*)stream;
-#endif
+	IStream *is = (IStream *)stream;
 	if (is) {
-#if 0
-		is->Destruct();
-#else
 		is->Release();
-#endif
 		return 0;
 	}
 	return EOF;
@@ -152,11 +104,7 @@ static int ZCALLBACK fclose_file_func (void* opaque, void* stream)
 
 static int ZCALLBACK ferror_file_func (void* opaque, void* stream)
 {
-#if 0
-	iTJSBinaryStream *is = (iTJSBinaryStream*)stream;
-#else
-	IStream *is = (IStream*)stream;
-#endif
+	IStream *is = (IStream *)stream;
 	if (is) {
 		return 0;
 	}
