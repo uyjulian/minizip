@@ -11,8 +11,8 @@
 
 static const char *copyright = 
 "\n----- MiniZip Copyright START -----\n"
-"MiniZip/MiniUnz 1.01b, demo of zLib + Zip package written by Gilles Vollant\n"
-"more info at http://www.winimage.com/zLibDll/minizip.html\n"
+"Condition of use and distribution are the same as zlib:\n"
+"https://github.com/zlib-ng/minizip-ng\n"
 "----- MiniZip Copyright END -----\n";
 
 #include <stdio.h>
@@ -24,6 +24,7 @@ static const char *copyright =
 #include <io.h>
 
 #include <ncbind.hpp>
+#if 1
 #include "mz_compat.h"
 #include "mz_strm.h"
 #if 1
@@ -32,6 +33,11 @@ static const char *copyright =
 #include "zlib.h"
 #endif
   
+#else
+#include <mz_compat.h>
+#include <zlib.h>
+#endif
+
 #include "narrow.h"
 
 #define BUFFERSIZE (16384)
@@ -42,11 +48,7 @@ static const char *copyright =
 #define FLAG_UTF8 (1<<11)
 
 // ファイルアクセス用
-#if 1
-extern  zlib_filefunc64_def KrkrFileFuncDef;
-#else
-extern  zlib_filefunc_def KrkrFileFuncDef;
-#endif
+extern zlib_filefunc64_def TVPZlibFileFunc;
 
 // Date クラスメンバ
 static iTJSDispatch2 *dateClass = NULL;    // Date のクラスオブジェクト
@@ -205,7 +207,7 @@ public:
 			}
 		}
 
-		if ((self->zf = zipOpen2_64((const void*)filename.c_str(), (overwrite==2) ? 2 : 0, NULL, &KrkrFileFuncDef)) == NULL) {
+		if ((self->zf = zipOpen2_64((const void*)filename.c_str(), (overwrite==2) ? 2 : 0, NULL, &TVPZlibFileFunc)) == NULL) {
 			// オープン失敗
 			ttstr msg = filename + " can't open.";
 			TVPThrowExceptionMessage(msg.c_str());
@@ -245,7 +247,7 @@ public:
 		
 		ttstr srcname  = *param[0];
 		ttstr destname = *param[1];
-		int   compressLevel = Z_DEFAULT_COMPRESSION;
+		int   compressLevel = MZ_COMPRESS_LEVEL_DEFAULT;
                 if (numparams > 2 && param[2]->Type() == tvtInteger) {
                   compressLevel = (int)*param[2];
                 }
@@ -307,7 +309,11 @@ public:
 
 		bool ret;
 		
+#if 1
 		IStream *in = TVPCreateIStream(filename, TJS_BS_READ);
+#else
+		iTJSBinaryStream *in = TVPCreateStream(filename, TJS_BS_READ);
+#endif
 		if (in) {
 			
 			// CRC計算
@@ -315,17 +321,23 @@ public:
 			if (usePassword) {
 				char buf[BUFFERSIZE];
 				DWORD size;
-				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
 #if 1
+				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
 					crcFile = zng_crc32(crcFile, (const Bytef *)buf, size);
-#else
-					crcFile = crc32(crcFile, (const Bytef *)buf, size);
-#endif
 				}
+#else
+				while ((size = in->Read(buf, sizeof buf)) > 0) {
+					crcFile = crc32(crcFile, (const unsigned char *)buf, size);
+				}
+#endif
 				// 位置をもどす
+#if 1
 				LARGE_INTEGER move = {0};
 				ULARGE_INTEGER newposition;
 				in->Seek(move, STREAM_SEEK_CUR, &newposition);
+#else
+				in->Seek(0, TJS_BS_SEEK_CUR);
+#endif
 			}
 			// ファイルの追加
 			// UTF8で格納する
@@ -338,7 +350,12 @@ public:
 									 crcFile, 0, FLAG_UTF8) == ZIP_OK) {
 				char buf[BUFFERSIZE];
 				DWORD size;
-				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0) {
+#if 1
+				while (in->Read(buf, sizeof buf, &size) == S_OK && size > 0)
+#else
+				while ((size = in->Read(buf, sizeof buf)) > 0) 
+#endif
+				{
 					zipWriteInFileInZip (self->zf, buf, size);
 				}
 				zipCloseFileInZip(self->zf);
@@ -346,7 +363,12 @@ public:
 			} else {
 				ret = false;
 			}
+#if 1
 			in->Release();
+#else
+			in->Destruct();
+#endif
+			in = 0;
 		}
 
 		if (result) {
@@ -407,7 +429,7 @@ public:
       if (numparams < 1) return TJS_E_BADPARAMCOUNT;
       
       ttstr filename = *param[0];
-      if ((self->uf = unzOpen2_64((const void*)filename.c_str(), &KrkrFileFuncDef)) == NULL) {
+      if ((self->uf = unzOpen2_64((const void*)filename.c_str(), &TVPZlibFileFunc)) == NULL) {
         ttstr msg = filename;
         msg += TJS_W(" can't open.");
         TVPThrowExceptionMessage(msg.c_str());
@@ -538,14 +560,27 @@ public:
 			int result = usePassword ? unzOpenCurrentFilePassword(self->uf,NarrowString(password))
 				: unzOpenCurrentFile(self->uf);
 			if (result == UNZ_OK) {
+#if 1
 				IStream *out = TVPCreateIStream(destname, TJS_BS_WRITE);
+#else
+				iTJSBinaryStream *out = TVPCreateStream(destname, TJS_BS_WRITE);
+#endif
 				if (out) {
 					char buf[BUFFERSIZE];
 					DWORD size;
 					while ((size = unzReadCurrentFile(self->uf,buf,sizeof buf)) > 0) {
+#if 1
 						out->Write(buf, size, &size);
+#else
+						out->Write(buf, size);
+#endif
 					}
+#if 1
 					out->Release();
+#else
+					out->Destruct();
+#endif
+					out = 0;
 				} else {
 					unzCloseCurrentFile(self->uf);
 					ttstr msg = destname + " can't open.";

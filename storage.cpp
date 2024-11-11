@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <windows.h>
 #include <ncbind.hpp>
 #include <map>
 #include <vector>
@@ -24,11 +23,9 @@
 extern void storeFilename(ttstr &name, const char *narrowName, bool utf8);
 
 // ファイルアクセス用
-#if 1
-extern  zlib_filefunc64_def KrkrFileFuncDef;
-#else
-extern  zlib_filefunc_def KrkrFileFuncDef;
-#endif
+extern zlib_filefunc64_def TVPZlibFileFunc;
+
+#define iTJSBinaryStream tTJSBinaryStream
 
 /**
  * Zip 展開処理クラス
@@ -58,7 +55,7 @@ public:
 	 */
 	bool init(const ttstr &filename) {
 		done();
-		if ((uf = unzOpen2_64((const void*)filename.c_str(), &KrkrFileFuncDef)) != NULL) {
+		if ((uf = unzOpen2_64((const void*)filename.c_str(), &TVPZlibFileFunc)) != NULL) {
 			lock();
 			unzGoToFirstFile(uf);
 			unz_file_info file_info;
@@ -230,6 +227,10 @@ private:
 /**
  * ZIP展開ストリームクラス
  */
+#if 1
+/**
+ * ZIP展開ストリームクラス
+ */
 class UnzipStream : public IStream {
 
 public:
@@ -392,6 +393,83 @@ private:
 	UnzipBase *unzip;
 	ULONG size;
 };
+#else
+class UnzipStream : public iTJSBinaryStream
+{
+
+public:
+	/**
+	 * コンストラクタ
+	 */
+	UnzipStream(UnzipBase *unzip) : unzip(unzip), size(0) {
+		unzip->AddRef();
+	};
+
+	/* if error, position is not changed */
+	virtual tjs_uint64 TJS_INTF_METHOD Seek(tjs_int64 offset, tjs_int whence) {
+		// 先頭にだけ戻せる
+		ZPOS64_T cur;
+		switch (whence) {
+		case TJS_BS_SEEK_CUR:
+			cur = unzip->tell();
+			cur += offset;
+			break;
+		default:
+		case TJS_BS_SEEK_SET:
+			cur = offset;
+			break;
+		case TJS_BS_SEEK_END:
+			cur = this->size;
+			cur += offset;
+			break;
+		}
+		if (unzip->seek(cur) == S_OK) {
+			return cur;
+		}
+		return EOF;
+	}
+
+	virtual tjs_uint TJS_INTF_METHOD Read(void *buffer, tjs_uint read_size) {
+		ULONG pcbRead;
+		if (unzip->read(buffer, read_size, &pcbRead) == S_OK) {
+			return pcbRead;
+		}
+		return 0;
+	}
+
+	virtual tjs_uint TJS_INTF_METHOD Write(const void *buffer, tjs_uint write_size) {
+		return 0;
+	};
+
+	virtual void TJS_INTF_METHOD SetEndOfStorage() {
+	}
+
+	virtual tjs_uint64 TJS_INTF_METHOD GetSize() {;
+		return size;
+	}
+
+	bool init(const ttstr filename) {
+		return unzip->open(filename, &size);
+	}
+	
+protected:
+	/**
+	 * デストラクタ
+	 */
+	virtual ~UnzipStream() {
+		close();
+		unzip->Release();
+	}
+
+	void close() {
+		unzip->close();
+	}
+	
+private:
+	UnzipBase *unzip;
+	ULONG size;
+};
+#endif
 
 /**
  * ZIPストレージ
@@ -463,7 +541,7 @@ public:
 	// open a storage and return a tTJSBinaryStream instance.
 	// name does not contain in-archive storage name but
 	// is normalized.
-	virtual tTJSBinaryStream * TJS_INTF_METHOD Open(const ttstr & name, tjs_uint32 flags) {
+	virtual iTJSBinaryStream * TJS_INTF_METHOD Open(const ttstr & name, tjs_uint32 flags) {
 		if (flags == TJS_BS_READ) { // 読み込みのみ
 			ttstr fname;
 			UnzipBase *unzip = getUnzip(name, fname);
@@ -471,11 +549,21 @@ public:
 				UnzipStream *stream = new UnzipStream(unzip);
 				if (stream) {
 					if (stream->init(fname)) {
+#if 1
 						tTJSBinaryStream *ret = TVPCreateBinaryStreamAdapter(stream);
 						stream->Release();
+						stream = 0;
 						return ret;
+#else
+						return stream;
+#endif
 					}
+#if 1
 					stream->Release();
+#else
+					stream->Destruct();
+#endif
+					stream = 0;
 				}
 			}
 		}
