@@ -328,7 +328,7 @@ public:
 	
 	HRESULT STDMETHODCALLTYPE Stat(STATSTG *pstatstg, DWORD grfStatFlag) {
 		if(pstatstg) {
-			ZeroMemory(pstatstg, sizeof(*pstatstg));
+			memset(pstatstg, 0, sizeof(*pstatstg));
 
 			// pwcsName
 			// this object's storage pointer does not have a name ...
