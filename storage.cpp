@@ -12,7 +12,7 @@
 
 #define CASESENSITIVITY (0)
 
-#define BASENAME L"zip"
+#define BASENAME TJS_W("zip")
 
 // UTF8なファイル名かどうかのフラグ
 #define FLAG_UTF8 (1<<11)
