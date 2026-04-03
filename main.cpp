@@ -537,14 +537,30 @@ public:
 			int result = usePassword ? unzOpenCurrentFilePassword(self->uf,NarrowString(password))
 				: unzOpenCurrentFile(self->uf);
 			if (result == UNZ_OK) {
+#if 0
 				iTJSBinaryStream *out = TVPCreateStream(destname, TJS_BS_WRITE);
+#else
+				IStream *out = TVPCreateIStream(destname, TJS_BS_WRITE);
+#endif
 				if (out) {
 					char buf[BUFFERSIZE];
+#if 0
 					tjs_uint size;
+#else
+					DWORD size;
+#endif
 					while ((size = unzReadCurrentFile(self->uf,buf,sizeof buf)) > 0) {
+#if 0
 						out->Write(buf, size);
+#else
+						out->Write(buf, size, &size);
+#endif
 					}
+#if 0
 					out->Destruct();
+#else
+					out->Release();
+#endif
 					out = 0;
 				} else {
 					unzCloseCurrentFile(self->uf);
